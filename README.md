@@ -13,17 +13,12 @@ This repo holds the codes of paper: "PointTAD: Multi-Label Temporal Action Detec
 ## Overview
 
 This paper presents a query-based framework for multi-label temporal action detection, namely PointTAD, that leverages a set of **learnable query points** to handle both boundary frames and action semantic keyframes for finer action representation. Our model takes **RGB input only** and streamlines an **end-to-end trainable** framework for easy deployment. PointTAD surpasses previous multi-label TAD works by a large margin under detection-mAP and achieves comparable results under segmentation-mAP.
-- [PointTAD \[NeurIPS 2022\]](#pointtad-neurips-2022)
-	- [News](#news)
-	- [Overview](#overview)
-	- [Dependencies](#dependencies)
-	- [Data Preparation](#data-preparation)
-	- [Checkpoints](#checkpoints)
-	- [Testing](#testing)
-	- [Training](#training)
-	- [Acknowledgements](#acknowledgements)
-	- [Citations](#citations)
-	- [Contacts](#contacts)
+
+- [Dependencies](#dependencies)
+- [Data Preparation](#data-preparation)
+- [Checkpoints](#checkpoints)
+- [Testing](#testing)
+- [Training](#training)
 
 ## Dependencies
 
