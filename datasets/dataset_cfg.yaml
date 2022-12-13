@@ -1,0 +1,75 @@
+multithumos:
+  lr: 2e-4
+  lr_backbone: 1e-5
+  batch_size: 3
+  weight_decay: 1e-4
+  lr_drop: 10
+  clip_max_norm: 0.1
+
+  # Dataset parameters
+  window_size: 64
+  num_classes: 65
+  interval: 4
+  frame_folder: data/multithumos_frames
+  tensor_folder: data/multithumos_tensors
+  annotation_path: datasets/multithumos.json
+  frame_file_path: datasets/multithumos_frames.json
+
+  # Model parameters
+  dec_layers: 4
+  dim_feedforward: 2048
+  hidden_dim: 512
+  dropout: 0.1
+  nheads: 8
+  num_queries: 48
+  num_querypoints: 21
+  model_path: ckpt/rgb_imagenet.pt
+
+  # Loss parameters
+  aux_loss: true
+  set_cost_class: 10
+  set_cost_seg: 5
+  set_cost_giou: 5
+  dice_loss_coef: 10
+  seg_loss_coef: 5
+  giou_loss_coef: 5
+  dense_loss_coef: 10
+  eos_coef: 0.1
+
+charades:
+  lr: 2e-4
+  lr_backbone: 1e-5
+  batch_size: 2
+  weight_decay: 1e-4
+  lr_drop: 10
+  clip_max_norm: 0.1
+
+  # Dataset parameters
+  window_size: 100
+  num_classes: 157
+  interval: 4
+  frame_folder: data/charades_v1_rgb
+  tensor_folder: data/charades_v1_rgb_tensors
+  annotation_path: datasets/charades.json
+  frame_file_path: datasets/charades_frames.json
+
+  # Model parameters
+  dec_layers: 4
+  dim_feedforward: 2048
+  hidden_dim: 512
+  dropout: 0.1
+  nheads: 8
+  num_queries: 48
+  num_querypoints: 15
+  model_path: ckpt/rgb_charades.pt
+
+  # Loss parameters
+  aux_loss: true
+  set_cost_class: 10
+  set_cost_seg: 5
+  set_cost_giou: 5
+  dice_loss_coef: 10
+  seg_loss_coef: 5
+  giou_loss_coef: 5
+  dense_loss_coef: 5
+  eos_coef: 0.1
