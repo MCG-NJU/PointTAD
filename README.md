@@ -8,6 +8,8 @@ This repo holds the codes of paper: "PointTAD: Multi-Label Temporal Action Detec
 
 ## News
 
+**[Jan. 10, 2022]** Fixed some bugs and typos; updated best checkpoints for both multi-label benchmarks.
+
 **[Dec. 13, 2022]**  We release the codes and checkpoints on MultiTHUMOS and Charades.
 
 ## Overview
@@ -24,23 +26,21 @@ This paper presents a query-based framework for multi-label temporal action dete
 
 PyTorch 1.8.1 or higher, opencv-python, scipy, terminaltables, ruamel-yaml, **ffmpeg**
 
-run `start.sh` to install packages.
+`pip install -r requirements.txt` to install dependencies.
 
 ## Data Preparation
 
 To prepare the RGB frames and corresponding annotations,
 
 - Clone the repository and `cd PointTAD; mkdir data` 
-- **MultiTHUMOS:** 
+- For **MultiTHUMOS:** 
   - Download the raw videos of THUMOS14 into `/data/thumos14_videos`;
-  - Extract the RGB frames of MultiTHUMOS from raw videos using  `utils/extract_frames.py`.  The frames will be placed in `/data/multithumos_frames`;
+  - Extract the RGB frames from raw videos using  `utils/extract_frames.py`.  The frames will be placed in `/data/multithumos_frames`;
   - You also need to generate `multithumos_frames.json` for the extracted frames with  `/util/generate_frame_dict.py` and put the json file into `/dataset` folder.
-- **Charades:** 
+- For **Charades:** 
   - Download the RGB frames of Charades from [here](https://prior.allenai.org/projects/charades) , and place the frames at  `/data/charades_v1_rgb`.
 
-**[Optional but Suggested]** Once you had the raw frames, you can convert them into tensors with `/util/frames2tensor.py` to **speed up IO**. By enabling  `--img_tensor` in `train.sh` and `test.sh`, the model takes in image tensors instead of frames.
-
-✨ Don't forget to replace the frame folder path or image tensor path in `/data/dataset_cfg.yml`.
+- Replace the frame folder path or image tensor path in `/data/dataset_cfg.yml`.
 
 The structure of `data/` is displayed as follows:
 
@@ -52,40 +52,38 @@ The structure of `data/` is displayed as follows:
 |   |-- multithumos_frames
 |   |   |-- training
 |   |   |-- testing
-|   |-- multithumos_tensors [optional]
-|   |   |-- training
-|   |   |-- testing
 |   |-- charades_v1_rgb
-|   |-- charades_v1_rgb_tensors [optional]
 ```
+
+**[Optional]** Once you had the raw frames, you can convert them into tensors with `/util/frames2tensor.py` to **speed up IO**. By enabling  `--img_tensor` in `train.sh` and `test.sh`, the model takes in image tensors instead of frames.
 
 ## Checkpoints
 
-The checkpoints are tested on server with 8 A100 cards (40GB).
+The best checkpoint is provided in the link below. We provide an error bar for each benchmark in the supplementary material of our paper.
 
 | Dataset         | mAP@0.2 | mAP@0.5 | mAP@0.7 | Avg-mAP | Checkpoint                                                   |
 | --------------- | ------- | ------- | ------- | ------- | ------------------------------------------------------------ |
-| **MultiTHUMOS** | 36.80%  | 23.33%  | 10.95%  | 21.72%  | [Link](https://drive.google.com/file/d/1OoCZJvBDFaFZq0mPHlUAIW384dw_CzHo/view?usp=sharing) |
-| **Charades**    | 15.93%  | 12.59%  | 8.49%   | 11.26%  | [Link](https://drive.google.com/file/d/1ceatzqOb9-BJ89Bdtzuzz9R4nrL1FiIS/view?usp=sharing) |
+| **MultiTHUMOS** | 39.70%  | 24.90%  | 12.04%  | 23.46%  | [Link](https://drive.google.com/file/d/1GhaxMOpknRlidENIsJIZ3Cl_o_vcGnoH/view?usp=sharing) |
+| **Charades**    | 17.45%  | 13.46%  | 9.14%   | 12.13%  | [Link](https://drive.google.com/file/d/1NDogh-us8GQ1kYA-eSR-yjN3MksH4USG/view?usp=sharing) |
 
-![image-20221213161122232](imgs/image-20221213161122232.png)
+![image-20230108105441363](imgs/image-20230108105441363.png)
 
-![image-20221213161244629](imgs/image-20221213161244629.png)
+![image-20230108112946729](imgs/image-20230108112946729.png)
 
 ## Testing
 
 Use `test.sh` to evaluate,
 
-- **MultiTHUMOS**: 
+- **MultiTHUMOS**:  
 
 ```
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python -m torch.distributed.launch --nproc_per_node=8 --master_port=11302 --use_env main.py --img_tensor --dataset multithumos --eval --load multithumos_best.pth
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python -m torch.distributed.launch --nproc_per_node=8 --master_port=11302 --use_env main.py --dataset multithumos --eval --load multithumos_best.pth
 ```
 
 - **Charades**:
 
 ```
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python -m torch.distributed.launch --nproc_per_node=8 --master_port=11302 --use_env main.py --img_tensor --dataset charades --eval --load charades_best.pth
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python -m torch.distributed.launch --nproc_per_node=8 --master_port=11302 --use_env main.py --dataset charades --eval --load charades_best.pth
 ```
 
 ## Training 
@@ -104,11 +102,9 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python -m torch.distributed.launch --nproc_
 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python -m torch.distributed.launch --nproc_per_node=8 --master_port=11302 --use_env main.py --dataset charades
 ````
 
-
-
 ## Acknowledgements
 
-The codebase is built on top of [RTD-Net](https://github.com/MCG-NJU/RTD-Action), [DETR](https://github.com/facebookresearch/detr), [Sparse R-CNN](https://github.com/PeizeSun/SparseR-CNN) and [AFSD](https://github.com/TencentYoutuResearch/ActionDetection-AFSD/), we thank them for providing useful codes.
+The codebase is built on top of [RTD-Net](https://github.com/MCG-NJU/RTD-Action), [DETR](https://github.com/facebookresearch/detr), [Sparse R-CNN](https://github.com/PeizeSun/SparseR-CNN), [AFSD](https://github.com/TencentYoutuResearch/ActionDetection-AFSD/) and [E2ETAD](https://github.com/xlliu7/E2E-TAD), we thank them for providing useful codes.
 
 ## Citations
 

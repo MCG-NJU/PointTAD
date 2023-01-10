@@ -137,13 +137,13 @@ class PointtadDecoderLayer(nn.Module):
         pro_features = pro_features.view(nr_segments, N, self.d_model).permute(1, 0, 2).reshape(1, N * nr_segments, self.d_model)
         cls_features = self.inst_parallel_mix(pro_features, point_features)
         pro_features = pro_features + self.dropout2(cls_features)
-        obj_features = self.norm2(pro_features)
+        act_features = self.norm2(pro_features)
 
-        obj_features2 = self.linear2(self.dropout(self.activation(self.linear1(obj_features))))
-        obj_features = obj_features + self.dropout3(obj_features2)
-        obj_features = self.norm3(obj_features)
+        act_features2 = self.linear2(self.dropout(self.activation(self.linear1(act_features))))
+        act_features = act_features + self.dropout3(act_features2)
+        act_features = self.norm3(act_features)
         
-        fc_feature = obj_features.transpose(0, 1).reshape(N * nr_segments, -1)
+        fc_feature = act_features.transpose(0, 1).reshape(N * nr_segments, -1)
         cls_feature = fc_feature.clone()
         reg_feature = fc_feature.clone()
         for cls_layer in self.cls_module:
@@ -156,7 +156,7 @@ class PointtadDecoderLayer(nn.Module):
         pred_points = self.apply_deltas(points_deltas, proposal_points.view(-1, self.num_querypoints)).view(N*nr_segments, -1)
 
         
-        return class_logits.view(N, nr_segments, -1), pred_points.view(N, nr_segments, -1), obj_features
+        return class_logits.view(N, nr_segments, -1), pred_points.view(N, nr_segments, -1), act_features
     
 
     def apply_deltas(self, deltas, points):
@@ -245,7 +245,7 @@ class PointDeformation(nn.Module):
         features = bilinear_sampling(features.unsqueeze(2), grid.unsqueeze(2).unsqueeze(3))
         features = features.permute(3,0,2,1).flatten(1,2)
         features = features.view(self.num_querypoints, self.num_subpoints, -1, self.d_model)
-        features = torch.mean(features * point_weights, dim=1)
+        features = torch.sum(features * point_weights, dim=1)
 
         return features
 

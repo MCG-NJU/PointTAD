@@ -12,19 +12,28 @@ import h5py as h5
 from tqdm import tqdm
 import cv2
 from torchvision import transforms
+from .transforms import GroupResizeShorterSide, GroupCenterCrop, GroupRandomCrop, GroupRandomHorizontalFlip, GroupPhotoMetricDistortion, GroupRotate
 
 IMAGE_CROP_SIZE = 192
- 
+IMAGE_RESIZE_SIZE = 256
+
 training_transforms = transforms.Compose([
-    transforms.RandomCrop(IMAGE_CROP_SIZE, pad_if_needed=True),
-    transforms.RandomHorizontalFlip(0.5),
-    transforms.RandomRotation(45),
-    transforms.ColorJitter(brightness=0.125, contrast=[0.5,1.5], saturation=[0.5,1.5], hue=0.05)
+    GroupResizeShorterSide(IMAGE_RESIZE_SIZE),
+    GroupRandomCrop(IMAGE_CROP_SIZE),
+    GroupPhotoMetricDistortion(brightness_delta=32,
+                    contrast_range=(0.5, 1.5),
+                    saturation_range=(0.5, 1.5),
+                    hue_delta=18,
+                    p=0.5),
+    GroupRotate(limit=(-45, 45), border_mode='reflect101', p=0.5),
+    GroupRandomHorizontalFlip(0.5),
 ])
 
 testing_transforms = transforms.Compose([
-    transforms.CenterCrop(IMAGE_CROP_SIZE)
+    GroupResizeShorterSide(IMAGE_RESIZE_SIZE),
+    GroupCenterCrop(IMAGE_CROP_SIZE),
 ])
+
 
 def load_json(file):
     with open(file) as json_file:
@@ -121,8 +130,7 @@ class MultiTHUMOS(torch.utils.data.Dataset):
                         for idx in range(len(annotations)):
                             anno = annotations[idx]
                             label = labels[idx]
-                            if anno[0] >= locations[0] and anno[
-                                    1] <= locations[-1]:
+                            if anno[0] >= locations[0] and anno[1] <= locations[-1]:
                                 gt.append((anno, label))
                         if self.split == 'testing':
                             self.video_list.append(
@@ -147,7 +155,7 @@ class MultiTHUMOS(torch.utils.data.Dataset):
             img_stacked[:len(img_sliced),...] = img_sliced[...]
             for i in range(self.window_size*self.interval - len(img_sliced)):
                 img_stacked[i+len(img_sliced),...] = img[...]
-            img_stacked = img_stacked.permute(3,0,1,2)
+            img_stacked = img_stacked.detach().cpu().numpy()
         else:
             img_stacked = []
             path_stacked = [os.path.join(f'{self.frame_folder}/{self.split}', vid, 'img_{:05d}.jpg'.format(i)) for i in block_idx]
@@ -159,13 +167,13 @@ class MultiTHUMOS(torch.utils.data.Dataset):
             for i in range(self.window_size*self.interval - len(path_stacked)):
                 img_stacked.append(img)
             assert len(img_stacked)==self.window_size*self.interval
-            img_stacked = np.stack(img_stacked,axis=0).transpose(3,0,1,2)
-            img_stacked = torch.from_numpy(img_stacked)
+            img_stacked = np.stack(img_stacked,axis=0)
 
-        if self.split == 'train':
+        if self.split == 'training':
             input_data = training_transforms(img_stacked)
         else:
             input_data = testing_transforms(img_stacked)
+        input_data = torch.from_numpy(input_data).permute(3,0,1,2)
         input_data = (input_data / 255.0) * 2.0 - 1.0
         locations = torch.Tensor([location for location in video.locations_offset])
 
@@ -282,7 +290,7 @@ class Charades(torch.utils.data.Dataset):
             img_stacked[:len(img_sliced),...] = img_sliced[...]
             for i in range(self.window_size*self.interval - len(img_sliced)):
                 img_stacked[i+len(img_sliced),...] = img[...]
-            img_stacked = img_stacked.permute(3,0,1,2)
+            img_stacked = img_stacked.detach().cpu().numpy()
         else:
             img_stacked = []
             path_stacked = [os.path.join(self.frame_folder, vid, '{}-{:06d}.jpg'.format(vid,i*2+1)) for i in block_idx]
@@ -296,13 +304,14 @@ class Charades(torch.utils.data.Dataset):
                 img_stacked.append(img)
             assert len(img_stacked)==self.window_size*self.interval
 
-            img_stacked = np.stack(img_stacked,axis=0).transpose(3,0,1,2)
-            img_stacked = torch.from_numpy(img_stacked)
-
-        if self.split == 'train':
+            img_stacked = np.stack(img_stacked,axis=0)
+            
+        if self.split == 'training':
             input_data = training_transforms(img_stacked)
         else:
             input_data = testing_transforms(img_stacked)
+
+        input_data = torch.from_numpy(input_data).permute(3,0,1,2)
         input_data = (input_data / 255.0) * 2.0 - 1.0
         
         locations = torch.Tensor([location for location in video.locations_offset])

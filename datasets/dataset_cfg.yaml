@@ -37,11 +37,11 @@ multithumos:
   eos_coef: 0.1
 
 charades:
-  lr: 2e-4
+  lr: 1e-4
   lr_backbone: 1e-5
   batch_size: 2
   weight_decay: 1e-4
-  lr_drop: 10
+  lr_drop: 30
   clip_max_norm: 0.1
 
   # Dataset parameters

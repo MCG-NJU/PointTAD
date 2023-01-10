@@ -1,0 +1,6 @@
+opencv-python
+matplotlib
+scipy
+pandas
+terminaltables
+ruamel-yaml

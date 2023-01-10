@@ -88,10 +88,6 @@ def multi_formatting(results, dataset):
             segments = preds_dict['segments']
             labels = preds_dict['labels']
 
-            segments = segments.detach().cpu().numpy()
-            scores = scores.detach().cpu().numpy()
-            labels = labels.detach().cpu().numpy()
-
             for sample_idx in range(segments.shape[0]):
                 results_list.append([
                     float(segments[sample_idx][0]/fps),

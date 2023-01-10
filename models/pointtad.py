@@ -416,15 +416,18 @@ class PostProcess(nn.Module):
         prob = F.softmax(out_logits, -1)
         scores, labels = prob[..., :-1].max(-1)
 
-        raw_segments = out_seg.clone()
         segments = ops.prop_cl_to_se(out_seg)
         segments = ops.prop_relative_to_absolute(segments, base, self.window_size, self.interval)
+
+        segments = segments.detach().cpu().numpy()
+        scores = scores.detach().cpu().numpy()
+        labels = labels.detach().cpu().numpy()
 
         results = [{
             'scores': s,
             'labels': l,
             'segments': b
-        } for s, l, b, rb in zip(scores, labels, segments, raw_segments)]
+        } for s, l, b in zip(scores, labels, segments)]
 
         return results, logits
 
