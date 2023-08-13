@@ -8,7 +8,7 @@ This repo holds the codes of paper: "PointTAD: Multi-Label Temporal Action Detec
 
 ## News
 
-**[Jan. 10, 2022]** Fixed some bugs and typos; updated best checkpoints for both multi-label benchmarks.
+**[Jan. 10, 2023]** Fixed some bugs and typos; updated best checkpoints for both multi-label benchmarks.
 
 **[Dec. 13, 2022]**  We release the codes and checkpoints on MultiTHUMOS and Charades.
 
