@@ -34,7 +34,7 @@ To prepare the RGB frames and corresponding annotations,
 
 - Clone the repository and `cd PointTAD; mkdir data` 
 - For **MultiTHUMOS:** 
-  - Download the raw videos of THUMOS14 into `/data/thumos14_videos`;
+  - Download the raw videos of THUMOS14 from [here](https://mycuhk-my.sharepoint.com/:f:/g/personal/1155208004_link_cuhk_edu_hk/EnTL-cAp4h1FlsqdQrzRxhwB7q9O1z9vqFaaL1WpdDWv-w) and put them into `/data/thumos14_videos`;
   - Extract the RGB frames from raw videos using  `utils/extract_frames.py`.  The frames will be placed in `/data/multithumos_frames`;
   - You also need to generate `multithumos_frames.json` for the extracted frames with  `/util/generate_frame_dict.py` and put the json file into `/dataset` folder.
 - For **Charades:** 
