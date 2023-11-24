@@ -20,6 +20,9 @@ else:
     tensor_path = 'data/charades_v1_rgb_tensors/' # path to image tensor folder
 
 for split in splits:
+    save_path = os.path.join(tensor_path, split)
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
     vid_list = os.listdir(os.path.join(frame_folder_path, split))
     for vid in tqdm(vid_list):
         if os.path.isfile(os.path.join(tensor_path, split, vid)):
